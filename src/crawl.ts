@@ -1,4 +1,5 @@
 import { URL } from "node:url";
+import { JSDOM } from "jsdom";
 
 /**
  * url examples:
@@ -28,4 +29,29 @@ export function normalizeUrl(url: string) {
   result = result.replace(/\/$/, "");
 
   return result;
+}
+
+export function getHeadingFromHTML(html: string): string {
+  const dom = new JSDOM(html);
+  const doc = dom.window.document;
+
+  const h1 = doc.querySelector("h1");
+  if (h1?.textContent) return h1.textContent.trim();
+
+  const h2 = doc.querySelector("h2");
+  if (h2?.textContent) return h2.textContent.trim();
+
+  return "";
+}
+
+export function getFirstParagraphFromHTML(html: string): string {
+  const dom = new JSDOM(html);
+  const doc = dom.window.document;
+
+  // prefer <main> if exists
+  const main = doc.querySelector("main");
+  const container = main || doc.body || doc;
+
+  const p = container.querySelector("p");
+  return p?.textContent?.trim() || "";
 }
