@@ -1,5 +1,6 @@
 import { URL } from "node:url";
 import { JSDOM } from "jsdom";
+import { ExtractedPageData } from "./types/ExtractedPageData";
 
 /**
  * url examples:
@@ -101,4 +102,19 @@ export function getImagesFromHTML(html: string, baseURL: string): string[] {
   }
 
   return images;
+}
+
+export function extractPageData(
+  html: string,
+  pageURL: string,
+): ExtractedPageData {
+  let extractedPageData: ExtractedPageData = {
+    url: pageURL,
+    heading: getHeadingFromHTML(html),
+    first_paragraph: getFirstParagraphFromHTML(html),
+    outgoing_links: getURLsFromHTML(html, pageURL),
+    image_urls: getImagesFromHTML(html, pageURL),
+  };
+
+  return extractedPageData;
 }
