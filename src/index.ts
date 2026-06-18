@@ -1,4 +1,5 @@
 import { argv } from "node:process";
+import { getHTML } from "./crawl";
 
 function main() {
   if (!argv[2]) {
@@ -11,11 +12,8 @@ function main() {
     process.exit(1);
   }
 
-  // argv.forEach((val, index) => {
-  //   console.log(`arg ${index}: ${val}`);
-  // });
-
   console.log(`Crawler started at: ${argv[2]}`);
+  getHTML(argv[2]);
 }
 
 main();

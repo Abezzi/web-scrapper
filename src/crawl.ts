@@ -118,3 +118,29 @@ export function extractPageData(
 
   return extractedPageData;
 }
+
+export async function getHTML(url: string): Promise<void> {
+  try {
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "BootCrawler/1.0",
+      },
+    });
+
+    if (response.status >= 400) {
+      console.error(`ERROR: HTTP status ${response.status}`);
+      return;
+    }
+
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("text/html")) {
+      console.error(`ERROR: Content type is not HTML: ${contentType}`);
+      return;
+    }
+
+    const html = await response.text();
+    console.log(html);
+  } catch (error) {
+    console.error("ERROR fetching HTML:", error);
+  }
+}
