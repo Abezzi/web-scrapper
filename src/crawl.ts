@@ -144,3 +144,64 @@ export async function getHTML(url: string): Promise<void> {
     console.error("ERROR fetching HTML:", error);
   }
 }
+
+export function isSameDomain(baseURL: string, currentURL: string): boolean {
+  try {
+    const base = new URL(baseURL);
+    const current = new URL(currentURL);
+    return base.hostname === current.hostname;
+  } catch {
+    return false;
+  }
+}
+
+export async function crawlPage(
+  baseURL: string,
+  currentURL: string = baseURL,
+  pages: Record<string, number> = {},
+): Promise<Record<string, number>> {
+  if (!isSameDomain(baseURL, currentURL)) {
+    return pages;
+  }
+
+  const normalizedCurrent = normalizeUrl(currentURL);
+
+  if (pages[normalizedCurrent] !== undefined) {
+    pages[normalizedCurrent]++;
+    return pages;
+  }
+
+  pages[normalizedCurrent] = 1;
+  console.log(`Crawling: ${currentURL}`);
+
+  let html: string;
+  try {
+    const response = await fetch(currentURL, {
+      headers: { "User-Agent": "BootCrawler/1.0" },
+    });
+
+    if (response.status >= 400) {
+      console.error(`ERROR: HTTP status ${response.status} for ${currentURL}`);
+      return pages;
+    }
+
+    const contentType = response.headers.get("content-type");
+    if (!contentType || !contentType.includes("text/html")) {
+      console.error(`ERROR: Content type is not HTML for ${currentURL}`);
+      return pages;
+    }
+
+    html = await response.text();
+  } catch (error) {
+    console.error(`ERROR fetching ${currentURL}:`, error);
+    return pages;
+  }
+
+  const urls = getURLsFromHTML(html, currentURL);
+
+  for (const url of urls) {
+    await crawlPage(baseURL, url, pages);
+  }
+
+  return pages;
+}

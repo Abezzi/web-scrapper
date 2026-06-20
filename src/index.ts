@@ -1,7 +1,9 @@
 import { argv } from "node:process";
-import { getHTML } from "./crawl";
+import { crawlPage, getHTML } from "./crawl";
 
-function main() {
+async function main() {
+  let baseUrl: string;
+
   if (!argv[2]) {
     console.log("ERROR, NO ARGUMENTS");
     process.exit(1);
@@ -12,8 +14,11 @@ function main() {
     process.exit(1);
   }
 
+  baseUrl = argv[2];
+
   console.log(`Crawler started at: ${argv[2]}`);
-  getHTML(argv[2]);
+  // getHTML(argv[2]);
+  await crawlPage(baseUrl);
 }
 
 main();
